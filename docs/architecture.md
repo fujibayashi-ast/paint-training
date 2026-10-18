@@ -55,19 +55,32 @@ flowchart LR
 
 * Mac の Safari の「開発」メニューから、USB で接続した iPad の Safari / ホーム画面アプリを Web インスペクタで調べられる（コンソール、ネットワーク、ストレージ）
 * Playwright の WebKit は実機の iPad Safari とは別物で、Apple Pencil の入力も再現できない。実機確認の代わりにはならない
-* 方法の選定は、アプリの土台の Issue、または実機確認用の Issue で行う（未決事項）
+* 方法の選定は、実機確認用の Issue（入力検証、#9）で行う（未決事項）
 
-## ディレクトリ構成（方針）
+## PWA
+
+* `vite-plugin-pwa`（Workbox の `generateSW`）で Manifest と Service Worker を生成する。ビルドのたびにファイル名のハッシュが変わるため、キャッシュ対象の一覧を手で管理せず、ビルドの成果物から自動生成する
+* 更新は `registerType: "autoUpdate"`（新しい版を自動で適用する）。描画データを扱うようになったら、描画中に更新が入らないよう更新の確認 UI（`prompt`）に切り替える
+* 開発サーバー（`bun run dev`）では Service Worker を登録しない。PWA の確認は `bun run build` → `bun run preview` で行う
+* 設定は `vite.config.ts`。Manifest の名前・アイコンは仮。アイコンの元は `public/icon.svg`
+
+## ディレクトリ構成
 
 機能単位 + 共通の構成で、細かめに分ける。ファイル・ディレクトリ名は kebab-case。
 分割は行数ではなく責務で決め、汎用的なものと固有のものを分ける。
 
 ```
+public/         # 静的ファイル（アイコンなど）
 src/
-  features/   # 機能単位（診断・基礎練習・イラスト練習・ツール学習・AI チャットなど）
-  components/ # 汎用 UI コンポーネント
-  hooks/      # 汎用 hooks
-  lib/        # 共通処理（ストローク、指標の計算、Command など）
+  features/     # 機能単位（診断・基礎練習・イラスト練習・ツール学習・AI チャットなど）
+  components/
+    ui/         # shadcn/ui のコンポーネント（生成物）
+  hooks/        # 汎用 hooks
+  lib/          # 共通処理（cn、今後はストローク、指標の計算、Command など）
+  app.tsx       # トップ画面
+  main.tsx      # エントリ
+  index.css     # Tailwind とテーマ変数
 ```
 
-実際の構成は実装に合わせて更新する。
+* `@/` は `src/` を指す（`tsconfig.app.json` と `vite.config.ts`）
+* テストは対象の隣に `*.test.ts` で置く（`bun test`）。型チェックはアプリ用（`tsconfig.app.json`）とテスト用（`tsconfig.test.json`）に分けている

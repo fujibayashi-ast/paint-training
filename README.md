@@ -22,7 +22,24 @@ TypeScript / React / Vite / shadcn/ui / Tailwind CSS / bun / Biome
 
 ## Getting Started
 
-アプリの実装はこれから。土台ができた時点でインストール・起動手順をここに追記する。
+前提: [bun](https://bun.sh/) をインストールしておく。
+
+```bash
+bun install      # 依存のインストール
+bun run dev      # 開発サーバーを起動（通常は http://localhost:5173。使用中なら別のポートになる。起動時の表示を見る）
+```
+
+| コマンド | 内容 |
+| --- | --- |
+| `bun run dev` | 開発サーバーを起動する。Service Worker は無効 |
+| `bun run build` | 型チェックのあと、`dist/` にビルドする |
+| `bun run preview` | ビルドした成果物を配信する。PWA（Manifest・Service Worker）はここで確認する |
+| `bun run lint` | Biome で lint とフォーマットの確認をする |
+| `bun run format` | Biome で整形する |
+| `bun run typecheck` | 型チェックをする |
+| `bun test` | テストを実行する |
+
+PWA の確認は `bun run build` → `bun run preview` で行い、ブラウザの開発者ツール（Application タブ）で Manifest と Service Worker を見る。
 
 ## 開発の進め方
 
