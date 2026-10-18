@@ -12,7 +12,7 @@
 ```mermaid
 flowchart LR
   User[利用者] --> App[React SPA / PWA]
-  App --> Store[(端末ローカル\nIndexedDB など)]
+  App --> Store[(端末ローカル<br/>IndexedDB など)]
   App -->|利用者の API キー| LLM[外部 LLM]
   SW[Service Worker] --- App
 ```
