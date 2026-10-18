@@ -1,21 +1,61 @@
 # アーキテクチャ
 
-要件が固まるまでは方針のみ。実装が進んだら更新する。
+要件（[requirements.md](requirements.md)）に基づく方針。実装が進んだら更新する。
 
 ## 方針
 
 * 当面はクライアントのみ（SPA / PWA）。必要になった時点でサーバーを追加する
 * プロセス構成はメインスレッド + Service Worker。必要に応じて Web Worker / WASM を導入する
-* ストレージは端末ローカル（IndexedDB など）。外部 DB が必要になった時点で導入する
+* ストレージは端末ローカル（IndexedDB）。外部 DB が必要になった時点で導入する
 * AI は利用者の API キーでブラウザから直接呼ぶ方式を基本とする
+* 機能は Command として包み、画面操作と AI の両方から同じ入口で呼ぶ
+
+## 全体像
 
 ```mermaid
 flowchart LR
-  User[利用者] --> App[React SPA / PWA]
-  App --> Store[(端末ローカル<br/>IndexedDB など)]
-  App -->|利用者の API キー| LLM[外部 LLM]
-  SW[Service Worker] --- App
+  Pen["入力<br/>Pointer Events"] --> Raw["生の点列<br/>x, y, t, 筆圧, 傾き"]
+  Raw --> Stab["手ブレ補正"]
+  Stab --> Canvas["キャンバス<br/>Canvas 2D"]
+  Raw --> Store[("端末ローカル<br/>IndexedDB")]
+  Stab --> Store
+  Raw --> Metrics["指標の計算<br/>端末側"]
+  Metrics --> Rules["短いヒント<br/>端末側のルール"]
+  Metrics --> LLM["助言・解釈<br/>外部 LLM"]
+  Cmd["Command API"] --> Canvas
+  Cmd --> Store
+  LLM --> Cmd
+  UI["画面操作"] --> Cmd
 ```
+
+* 分析は補正前の**生の点列**で行う。補正後の線は見た目用。両方を保存する
+* LLM には画像ではなく指標（数値）を渡すのを基本とする。LLM を毎ストロークで呼ばない
+* 外部 LLM へ送るデータは、送信前に利用者へ明示する
+
+## 描画
+
+* 当面は Canvas 2D。足りなくなったら WebGL2 / WebGPU を検討する
+* 描画中のストロークを描く層と、確定済みの絵を描く層を分け、書き味（遅延）を優先する
+* 筆圧・傾きなどの機能は実行時に検出し、無い環境でも動かす
+* 遅延とサンプリング頻度は実機で測定する（要件の未決事項）
+
+## 開発環境（iPad での実機確認）
+
+筆圧・傾き・遅延・PWA の挙動は iPad の実機でしか確認できないため、開発中に iPad から動作中のアプリを開けるようにする。
+
+* iPad から Mac の開発サーバーへ LAN 経由でアクセスする場合、`http://<LAN の IP>` は安全なコンテキスト（HTTPS）にならないため、Service Worker や PWA のインストール、`navigator.storage.persist()` が使えない。HTTPS が必要
+* HTTPS で開く方法の候補
+
+| 方法 | 内容 | 長所 | 短所 |
+| --- | --- | --- | --- |
+| ローカル証明書 | mkcert などで証明書を作り、iPad に証明書を入れて信頼する | 外部サービス不要 | iPad での証明書の設定が手間 |
+| トンネル | Cloudflare Tunnel などで開発サーバーを HTTPS で公開する | 設定が簡単。証明書不要 | 外部サービスを経由する。URL を知る人が見られる |
+| VPN | Tailscale などで同じネットワークに入り、HTTPS 証明書を使う | 外部に公開しない | アカウント・導入が必要 |
+| プレビューのデプロイ | PR ごとに Cloudflare Pages などへデプロイする | 実際の公開に近い環境で確認できる | 反映に時間がかかり、開発中の確認には遅い |
+
+* Mac の Safari の「開発」メニューから、USB で接続した iPad の Safari / ホーム画面アプリを Web インスペクタで調べられる（コンソール、ネットワーク、ストレージ）
+* Playwright の WebKit は実機の iPad Safari とは別物で、Apple Pencil の入力も再現できない。実機確認の代わりにはならない
+* 方法の選定は、アプリの土台の Issue、または実機確認用の Issue で行う（未決事項）
 
 ## ディレクトリ構成（方針）
 
@@ -24,10 +64,10 @@ flowchart LR
 
 ```
 src/
-  features/   # 機能単位（基礎練習・イラスト練習・ツール説明・AI など）
+  features/   # 機能単位（診断・基礎練習・イラスト練習・ツール学習・AI チャットなど）
   components/ # 汎用 UI コンポーネント
   hooks/      # 汎用 hooks
-  lib/        # 共通処理
+  lib/        # 共通処理（ストローク、指標の計算、Command など）
 ```
 
 実際の構成は実装に合わせて更新する。
