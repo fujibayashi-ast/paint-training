@@ -1,0 +1,36 @@
+# CI ワークフロー雛形
+# プロジェクトの言語・ビルドツールに応じて steps を書き換えること
+# - Node (yarn): setup-node → yarn install --frozen-lockfile → yarn lint / typecheck / test
+# - Python (uv): setup-python → uv sync → ruff check / mypy / pytest
+# - Go: setup-go → go vet / go test
+#
+# 使わない場合はこのファイルごと削除してよい
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # TODO: 言語ごとの setup を有効化する
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      #     cache: yarn
+
+      # TODO: 依存インストール
+      # - run: yarn install --frozen-lockfile
+
+      # TODO: lint / typecheck / test
+      # - run: yarn lint
+      # - run: yarn typecheck
+      # - run: yarn test
+
+      - run: echo "CI steps are not configured yet. Edit .github/workflows/ci.yml"

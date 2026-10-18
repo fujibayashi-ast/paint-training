@@ -1,0 +1,29 @@
+# Dependabot で依存の自動アップデート PR を作成する
+# プロジェクトで使うパッケージマネージャに合わせて package-ecosystem を書き換える
+# 参考: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # GitHub Actions 自体のバージョン管理（どのプロジェクトでも有効）
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "chore"
+
+  # TODO: プロジェクトに応じて以下を有効化する
+  # - package-ecosystem: "npm"       # Node.js (npm / yarn / pnpm)
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #   open-pull-requests-limit: 10
+  #   labels:
+  #     - "dependencies"
+
+  # - package-ecosystem: "pip"       # Python
+  # - package-ecosystem: "cargo"     # Rust
+  # - package-ecosystem: "gomod"     # Go
+  # - package-ecosystem: "bundler"   # Ruby

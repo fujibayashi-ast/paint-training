@@ -1,0 +1,30 @@
+name: Chore
+description: 雑務・改善
+title: "[Chore] "
+labels: ["chore"]
+body:
+
+* type: textarea
+  id: task
+  attributes:
+  label: 作業内容
+  placeholder: |
+  何をするか
+
+* type: textarea
+  id: reason
+  attributes:
+  label: 理由
+
+* type: textarea
+  id: docs
+  attributes:
+  label: 参照ドキュメント
+  description: 作業にあたって読むべきドキュメント（該当なしなら空でよい）
+  placeholder: |
+  - docs/claude/workflow.md
+
+* type: textarea
+  id: notes
+  attributes:
+  label: 注意点

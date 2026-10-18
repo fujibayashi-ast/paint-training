@@ -1,0 +1,14 @@
+# CODEOWNERS — PR 作成時に自動でレビュアーが割り当てられる
+#
+# 形式: <パスパターン> <@ユーザー名 または @チーム名>
+# 先勝ちではなく、マッチした最後の行が適用される
+# 詳細: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-security/customizing-your-repository/about-code-owners
+
+# デフォルトのレビュアー（全ファイル）
+# * @your-team
+
+# 例: ドキュメントだけ別レビュアー
+# docs/ @your-docs-team
+
+# 例: CI/CD の変更は特定の担当者
+# .github/ @your-devops-team
