@@ -30,6 +30,10 @@ if [ -z "$target" ]; then
   exit 0
 fi
 
+# 機密情報を含まないテンプレート（.env.example / .env.sample / .env.template）は許可する。
+# 末尾・空白・引用符のいずれかが直後に続く場合のみ取り除く（.env.example.local などは除外されない）
+target=$(printf '%s' "$target" | sed -E "s/\.env\.(example|sample|template)(\$|[[:space:]\"'])/\2/g")
+
 # ブロック対象パターン
 patterns=(
   # クレデンシャルファイル
@@ -47,8 +51,7 @@ patterns=(
   '\.gcloud/'
   '\.config/gh/hosts'
   # 環境変数・シークレット
-  '\.env(\.|$)'
-  '\.env$'
+  '\.env($|[^[:alnum:]_])'
   'secrets/'
   '/secrets\b'
   'credentials\.json'

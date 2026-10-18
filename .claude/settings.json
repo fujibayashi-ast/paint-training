@@ -35,19 +35,27 @@
       "Bash(gh release view:*)",
       "Bash(gh release list:*)",
       "Bash(gh release create:*)",
-      "Bash(yarn install)",
-      "Bash(yarn dev:*)",
-      "Bash(yarn build:*)",
-      "Bash(yarn test:*)",
-      "Bash(yarn lint:*)",
-      "Bash(yarn typecheck:*)",
-      "Bash(yarn format:*)",
+      "Bash(bun install)",
+      "Bash(bun run dev:*)",
+      "Bash(bun run build:*)",
+      "Bash(bun run test:*)",
+      "Bash(bun run lint:*)",
+      "Bash(bun run typecheck:*)",
+      "Bash(bun run format:*)",
+      "Bash(bun test:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
       "Edit",
       "Write"
     ],
     "deny": [
       "Read(.env)",
-      "Read(.env.*)",
+      "Read(.env.local)",
+      "Read(.env.*.local)",
+      "Read(.env.development)",
+      "Read(.env.production)",
+      "Read(.env.test)",
+      "Read(.env.staging)",
       "Read(**/secrets/**)",
       "Read(**/*.pem)",
       "Read(**/*.key)",
@@ -57,7 +65,32 @@
       "Bash(git clean -f*)",
       "Bash(git branch -D*)",
       "Bash(gh repo delete*)",
-      "Bash(yarn publish*)"
+      "Bash(bun publish*)",
+      "Bash(npm publish*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-credentials.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-biome.sh"
+          }
+        ]
+      }
     ]
   }
 }
