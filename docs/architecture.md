@@ -37,7 +37,7 @@ flowchart LR
 * 当面は Canvas 2D。足りなくなったら WebGL2 / WebGPU を検討する
 * 描画中のストロークを描く層と、確定済みの絵を描く層を分け、書き味（遅延）を優先する
 * 筆圧・傾きなどの機能は実行時に検出し、無い環境でも動かす
-* 遅延とサンプリング頻度は実機で測定する（要件の未決事項）
+* 遅延とサンプリング頻度は実機（iPad Pro 11 インチ第 1 世代）で測定済み。Pencil は約 240 Hz、イベントから描画まで約 1 フレーム。結果と未確認の項目は [requirements.md](requirements.md) の「PWA かネイティブか」と調査メモを参照
 
 ## 開発環境（iPad での実機確認）
 
@@ -55,13 +55,18 @@ flowchart LR
 
 * Mac の Safari の「開発」メニューから、USB で接続した iPad の Safari / ホーム画面アプリを Web インスペクタで調べられる（コンソール、ネットワーク、ストレージ）
 * Playwright の WebKit は実機の iPad Safari とは別物で、Apple Pencil の入力も再現できない。実機確認の代わりにはならない
-* 方法の選定は、実機確認用の Issue（入力検証、#9）で行う（未決事項）
+* **mkcert を使う**（#9 で決定）。外部サービスもアカウントも要らず、iPad に入れたルート CA は正式に信頼されるため、Service Worker・PWA・`navigator.storage.persist()` まで確かめられる。トンネルは外部サービスを経由して URL が公開され、VPN はアカウントと導入が要る。プレビューのデプロイは開発中の確認には遅い
+* `.cert/dev.pem` と `.cert/dev-key.pem` があるときだけ、`vite.config.ts` が開発サーバーとプレビューを HTTPS にする。無ければ HTTP のまま（`.cert/` は `.gitignore`）
+* `bun run dev` は localhost のみ。iPad 用の `dev:ipad` / `preview:ipad` だけ `--host` で LAN に公開する。`allowedHosts` は `.local` を許可する
+* 手順は [ipad-dev.md](ipad-dev.md)
+* 入力検証ページ（`src/features/input-lab/`、`#input-lab`）は開発専用で、当分は残す（#9 時点の判断。#10 以降の入力の確認と、スローモーション撮影での遅延測定に使う）。開発サーバーと `build:lab`（`vite build --mode lab`）にだけ含め、通常のビルドからは取り除く（`import.meta.env.DEV || MODE === "lab"` の条件で `lazy import` する）
 
 ## PWA
 
 * `vite-plugin-pwa`（Workbox の `generateSW`）で Manifest と Service Worker を生成する。ビルドのたびにファイル名のハッシュが変わるため、キャッシュ対象の一覧を手で管理せず、ビルドの成果物から自動生成する
 * 更新は `registerType: "autoUpdate"`（新しい版を自動で適用する）。描画データを扱うようになったら、描画中に更新が入らないよう更新の確認 UI（`prompt`）に切り替える
-* 開発サーバー（`bun run dev`）では Service Worker を登録しない。PWA の確認は `bun run build` → `bun run preview` で行う
+* 開発サーバー（`bun run dev`）では Service Worker を登録しない。PWA の確認は `bun run build` → `bun run preview` で行う。iPad で検証ページ込みで確認するときは `bun run build:lab`（`dist-lab/` に出力。`dist/` とは別）→ `bun run preview:ipad`
+* 実機（#9）で、配信中のビルドを別のビルドに差し替えたあとに、ホーム画面のアプリが真っ白になった。ハッシュ付きのファイルが入れ替わったことが原因の可能性があるが、未検証で、再現条件は特定できていない。開発中は、配信中の `dist-lab/` を作り直さない（[ipad-dev.md](ipad-dev.md)）。公開後は、古いファイルを残す、または更新の確認 UI（`prompt`）に切り替えることを検討する
 * 設定は `vite.config.ts`。Manifest の名前・アイコンは仮。アイコンの元は `public/icon.svg`
 
 ## ディレクトリ構成
@@ -73,9 +78,10 @@ flowchart LR
 public/         # 静的ファイル（アイコンなど）
 src/
   features/     # 機能単位（診断・基礎練習・イラスト練習・ツール学習・AI チャットなど）
+    input-lab/  # 入力検証ページ（開発専用。通常のビルドには含めない）
   components/
     ui/         # shadcn/ui のコンポーネント（生成物）
-  hooks/        # 汎用 hooks
+  hooks/        # 汎用 hooks（use-hash など）
   lib/          # 共通処理（cn、今後はストローク、指標の計算、Command など）
   app.tsx       # トップ画面
   main.tsx      # エントリ

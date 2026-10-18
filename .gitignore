@@ -19,6 +19,7 @@ Thumbs.db
 !.env.example
 *.pem
 *.key
+.cert/
 
 # Logs
 *.log
@@ -37,6 +38,7 @@ venv/
 
 # Build artifacts
 dist/
+dist-lab/
 build/
 out/
 target/

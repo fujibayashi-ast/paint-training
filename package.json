@@ -4,8 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:ipad": "vite --host",
     "build": "tsc -b && vite build",
+    "build:lab": "tsc -b && vite build --mode lab --outDir dist-lab",
     "preview": "vite preview",
+    "preview:ipad": "vite preview --host --outDir dist-lab",
     "typecheck": "tsc -b --noEmit",
     "lint": "biome check .",
     "format": "biome format --write .",
