@@ -14,7 +14,6 @@
 ## Claude / 運用向け（`docs/claude/`）
 
 - [guide.md](claude/guide.md) — 開発ガイド（人間向け）
-- [setup.md](claude/setup.md) — `/setup` スキルのヒアリング項目
 - [skills.md](claude/skills.md) — skill の運用方針・取得元（テンプレートリポジトリ）設定
 - [workflow.md](claude/workflow.md) — Issue 着手から PR マージまでの標準ワークフロー
 - `build.md` — ビルド・配布手順（配布物が決まったら作成。現時点では未作成）
