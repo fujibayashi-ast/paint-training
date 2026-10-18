@@ -17,7 +17,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # TODO: 言語ごとの setup を有効化する
       # - uses: actions/setup-node@v4
