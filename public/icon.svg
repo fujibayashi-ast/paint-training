@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="イラスト練習（仮）のアイコン">
+  <title>イラスト練習（仮）のアイコン</title>
+  <rect width="512" height="512" fill="#18181b" />
+  <g transform="rotate(45 256 256)" fill="#fafafa">
+    <rect x="236" y="116" width="40" height="190" rx="6" />
+    <polygon points="236,306 276,306 256,356" />
+  </g>
+  <path d="M150 380 Q 200 340 250 380 T 350 380" fill="none" stroke="#fafafa" stroke-width="10" stroke-linecap="round" />
+</svg>
