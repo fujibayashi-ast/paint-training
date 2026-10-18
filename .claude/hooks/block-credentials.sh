@@ -17,6 +17,12 @@ target=""
 case "$tool_name" in
   Bash)
     target="$command"
+    # 文章部分（コミットメッセージ、Issue 本文、import.meta.env など）を取り除いてから照合する。
+    # python3 が無い、またはパースに失敗した場合は、コマンド全文を照合する（誤検知は増えるが保護は弱まらない）
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    if sanitized=$(printf '%s' "$command" | python3 -I "$script_dir/sanitize-bash-command.py" 2>/dev/null); then
+      target="$sanitized"
+    fi
     ;;
   Read|Edit|Write|NotebookEdit)
     target="$file_path"

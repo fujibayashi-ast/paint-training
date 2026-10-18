@@ -128,6 +128,17 @@ Claude Code の設定は `.claude/` と `.mcp.json` にまとまっている。
 | `block-credentials.sh` | ツール実行前 | クレデンシャル・機密ファイルへのアクセスと、環境変数のダンプをブロックする |
 | `format-biome.sh` | Edit / Write の後 | 編集した ts / tsx / js / jsx / json / css を Biome で整形する。Biome が未導入なら何もしない |
 
+`block-credentials.sh` の Bash の判定:
+
+* `sanitize-bash-command.py` が、コマンドをシェル構文で分割し、確実に文章と言える部分を取り除いてから照合する
+  * `import.meta.env` / `process.env` / `Bun.env` / `Deno.env`
+  * リテラルなヒアドキュメント（`<<'EOF'`）の本文
+  * `git commit` / `git tag` の `-m` / `--message`、`gh issue|pr` の `--title` / `-t` / `--body` / `-b` の値
+* 値に `$(` やバッククォートがある場合は、コマンド置換で機密ファイルを読めてしまうため取り除かない。`--body-file` はパスなので取り除かない
+* `python3` が無い、またはパースに失敗した場合は、コマンド全文を照合する（誤検知は増えるが、保護は弱まらない）
+* 想定する脅威は「うっかりのアクセス」であり、意図的な回避は防げない
+* 判定を変えたら `bash .claude/hooks/block-credentials.test.sh` で、ブロックすべきものと通すべきものを確認する
+
 ### agent（`.claude/agents/`）
 
 | agent | モデル | 用途 |
