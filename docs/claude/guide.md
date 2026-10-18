@@ -99,6 +99,46 @@
 
 ---
 
+## ハーネス構成
+
+Claude Code の設定は `.claude/` と `.mcp.json` にまとまっている。
+
+### MCP（`.mcp.json`）
+
+| サーバー | 用途 |
+| --- | --- |
+| `context7` | ライブラリの最新ドキュメントを取得する |
+| `playwright` | ブラウザを操作して UI の動作を確認する（WebKit は実機の iPad Safari とは異なり、Apple Pencil 入力も再現できない） |
+| `chrome-devtools` | 画面のデバッグ・性能計測 |
+
+* 外部パッケージを `npx` で実行するため、バージョンを固定している。更新するときは `npm view <パッケージ名> version` で現行版を確認して書き換える
+* 初回起動時に承認を求められる。`context7` の読み取り系ツールは `settings.json` で許可済み
+
+### 権限（`.claude/settings.json`）
+
+* git / gh の基本操作と、bun のスクリプト実行（`bun install` / `bun run dev|build|test|lint|typecheck|format` / `bun test`）を許可している
+* 強制 push、`reset --hard`、パッケージ公開（`bun publish` / `npm publish`）などは禁止している
+* `.env` などの機密ファイルの読み取りは禁止している（`.env.example` / `.env.sample` / `.env.template` は許可）
+* 個人用の設定は `.claude/settings.local.json`（gitignore 済み。サンプルは `settings.local.json.example`）に書く
+
+### hook（`.claude/hooks/`）
+
+| スクリプト | タイミング | 内容 |
+| --- | --- | --- |
+| `block-credentials.sh` | ツール実行前 | クレデンシャル・機密ファイルへのアクセスと、環境変数のダンプをブロックする |
+| `format-biome.sh` | Edit / Write の後 | 編集した ts / tsx / js / jsx / json / css を Biome で整形する。Biome が未導入なら何もしない |
+
+### agent（`.claude/agents/`）
+
+| agent | モデル | 用途 |
+| --- | --- | --- |
+| `scout` | haiku | 読み取り専用の探索と機械的な確認（検索、test / lint / build の実行、git の確認）。要約だけを返す |
+| `deep-diver` | opus | 難しい問題に限ったエスカレーション用（アーキテクチャ判断、難航しているデバッグなど） |
+
+使い分けの基準は [CLAUDE.md](../../CLAUDE.md) の「Agent / Token Efficiency」を参照。
+
+---
+
 ## 依頼するときのコツ
 
 - **具体的に**: 「直して」より「◯◯の時に△△になるのを直して」の方が精度が上がる
