@@ -6,10 +6,10 @@
 
 プロジェクトに応じて以下のようなドキュメントを配置する。必要なものだけ作成し、ここに追記する。
 
-- `architecture.md` — アーキテクチャ説明
-- `requirements.md` — 要件
-- `er.md` — DB ER 図
-- `sequence/` — シーケンス図
+- [architecture.md](architecture.md) — アーキテクチャ説明
+- [requirements.md](requirements.md) — 要件
+- `er.md` — DB ER 図（必要になったら作成）
+- `sequence/` — シーケンス図（必要になったら作成）
 
 ## Claude / 運用向け（`docs/claude/`）
 
@@ -17,7 +17,7 @@
 - [setup.md](claude/setup.md) — `/setup` スキルのヒアリング項目
 - [skills.md](claude/skills.md) — skill の運用方針・取得元（テンプレートリポジトリ）設定
 - [workflow.md](claude/workflow.md) — Issue 着手から PR マージまでの標準ワークフロー
-- `build.md` — ビルド・配布手順（配布物があるプロジェクトで `/setup` 時に生成）
+- `build.md` — ビルド・配布手順（配布物が決まったら作成。現時点では未作成）
 
 ## 命名・配置ルール
 
