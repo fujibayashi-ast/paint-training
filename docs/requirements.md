@@ -185,11 +185,30 @@ LLM は画像から細かい線の質を診断するのが不安定なため、�
 | --- | --- |
 | iOS で保存が消える可能性 | あり。エクスポートで対処 |
 | Pencil Pro のスクイーズ・ダブルタップが取れない | 小さい。画面上の UI で足りる |
-| ホバー中は傾きが取れない | 小さい |
+| ホバーが使えない（ホバー中は傾きも取れない） | 小さい。iPad Pro 11 インチ第 1 世代では、ホバーはハードウェアが非対応 |
 | プッシュ通知・バックグラウンド処理が弱い | なし。使わない |
-| 描画の遅延（書き味） | **最大の懸念**。実機で測るまで不明 |
+| 描画の遅延（書き味） | **最大の懸念**。実機の測定では、入力は 240 Hz で取れ、イベントから描画まで約 1 フレーム。画面に出るまでの遅延は未測定（下の「結論」） |
 
-* 書き味が実用に耐えないと分かったら、ネイティブ化（またはネイティブで包む）を検討する。判断は入力検証の結果で行う。
+* 書き味が実用に耐えないと分かったら、ネイティブ化（またはネイティブで包む）を検討する。
+
+### 結論（入力検証 #9、2026-10-18）
+
+**PWA で進める。** 実機（iPad Pro 11 インチ第 1 世代、iPadOS 26.7.1、Apple Pencil 第 2 世代）の測定で、ネイティブが必須になる根拠は見つからなかった。
+
+* 筆圧・`tiltX` / `tiltY`・`altitudeAngle` / `azimuthAngle` が Pencil で取れる
+* Pencil のサンプルを約 240 Hz で取れる（`getCoalescedEvents()` で 1 回のイベントに平均 2 点）。`getPredictedEvents()` も使える
+* イベントから描画（`requestAnimationFrame`）まで約 1 フレーム（8〜17 ms）。ただし画面に表示されるまでは含まないため、50 ms の目安との比較は、スローモーション撮影の結果を待つ
+* ホーム画面に追加して standalone で起動でき、Service Worker・IndexedDB・`navigator.storage.persist()` が動く（利用者の確認。詳細は調査メモ）
+* 測定したのは古い世代の iPad。新しい世代では、少なくとも同等と見込む
+
+ただし、次は未確認で、#10（最小キャンバス）以降で確かめる。
+
+* **画面に表示されるまでを含めた遅延**。今回の測り方では測れない。スローモーション撮影で、ペン先と線の先端の距離を見る
+* `desynchronized` の効果（ヒントは Safari で受け付けられるが、効果は測れていない）
+* 保存の永続性（数日後・数週間後も IndexedDB の値が残るか）。エクスポート / バックアップは、結果によらず用意する
+* M2 以降の iPad Pro での Safari のホバー
+
+入力検証ページは、これらの確認に使うため、当分は開発専用として残す（[architecture.md](architecture.md) の「開発環境」）。
 
 ## 未決事項
 
@@ -199,12 +218,13 @@ LLM は画像から細かい線の質を診断するのが不安定なため、�
 * 診断課題の詳細と、症状と対処の対応表の中身
 * ペンごとの筆圧の効き方（太さ・濃さ・端の形）の設計
 * 配置（チュートリアル・ヘルプ・AI チャット）の具体案
-* 描画の遅延とサンプリング頻度（実機で測定）
-* iPad のホバー対応の有無（このモデルで使えるか）
+* 画面に表示されるまでを含めた描画の遅延（スローモーション撮影で測る。#10 で確認）
+* M2 以降の iPad Pro で、Safari がホバーのイベントを渡すか（第 1 世代はハードウェアが非対応。必須ではない）
+* 描画のフレームが 120 Hz になる条件（測定中に 120 Hz の回と 60 Hz の回があり、原因は未特定）
+* 保存の永続性（数日後・数週間後も IndexedDB の値が残るか）
 * Apple Pencil（USB-C）の筆圧の有無
 * AI の実行方式の最終決定（API キー方式 / ブラウザ内 LLM）と費用
 * 描画方式（Canvas 2D で足りるか）
-* iPad から開発中のアプリを開く方法（HTTPS の用意。[architecture.md](architecture.md) の「開発環境」を参照）
 * リリース・公開方法
 
 ## 次の Issue 候補
@@ -228,16 +248,37 @@ LLM は画像から細かい線の質を診断するのが不安定なため、�
 
 | 項目 | 状況 | 確度 | 出典 |
 | --- | --- | --- | --- |
-| 筆圧、`tiltX` / `tiltY` | 取得できる（Safari 13 / iOS 13 以降） | 高 | [Pointer Events](https://www.w3.org/TR/pointerevents3/) |
-| `altitudeAngle` / `azimuthAngle` | Safari 18.2 から対応 | 高 | [WebKit: Safari 18.2](https://webkit.org/blog/16301/webkit-features-in-safari-18-2/) |
-| `getCoalescedEvents()` / `getPredictedEvents()` | Safari 18.2 から対応（MDN の表記は「対応が限定的」で食い違うため、WebKit の公式記載を優先） | 中 | 同上 |
-| ホバー | イベントは出るが、ホバー中は傾きが取れない | 中 | [Apple 開発者フォーラム](https://developer.apple.com/forums/thread/776468) |
+| 筆圧、`tiltX` / `tiltY` | 取得できる（Safari 13 / iOS 13 以降）。**実機で確認**（Pencil 第 2 世代。指では筆圧 0・傾き 0） | 高 | [Pointer Events](https://www.w3.org/TR/pointerevents3/)、実機測定 |
+| `altitudeAngle` / `azimuthAngle` | Safari 18.2 から対応。**実機で確認** | 高 | [WebKit: Safari 18.2](https://webkit.org/blog/16301/webkit-features-in-safari-18-2/)、実機測定 |
+| `getCoalescedEvents()` / `getPredictedEvents()` | Safari 18.2 から対応（MDN の表記は「対応が限定的」で食い違うため、WebKit の公式記載を優先）。**実機で確認**（Pencil で coalesced 平均 2 点、predicted 平均 約 1〜2.5 点、指で coalesced 1 点） | 高 | 同上、実機測定 |
+| ホバー | イベントは出るが、ホバー中は傾きが取れない。**iPad Pro 11 インチ第 1 世代では、イベントが来ない**（Pencil のホバーは M2 以降の iPad Pro の機能で、ハードウェアが非対応）。M2 以降での Safari の挙動は未確認 | 中 | [Apple 開発者フォーラム](https://developer.apple.com/forums/thread/776468)、実機測定 |
 | Pencil Pro のバレルロール・スクイーズ・ダブルタップ | Web からは取れない | 中 | [WebKit Bugzilla](https://bugs.webkit.org/show_bug.cgi?id=296943)、[フォーラム](https://developer.apple.com/forums/thread/760238) |
-| サンプリング頻度 | 18.2 より前でも `pointermove` で最大 240 Hz という報告と、`touchmove` より粗いという報告がある。実機で測る | 低 | [フォーラム](https://developer.apple.com/forums/thread/689375) |
+| サンプリング頻度 | **実機で測定: Pencil は約 240 Hz、指は約 120 Hz**。`pointermove` は約 120 Hz で届き、1 回に Pencil なら平均 2 点が coalesced に入る | 高（1 機種） | [フォーラム](https://developer.apple.com/forums/thread/689375)、実機測定 |
+
+#### 実機測定（2026-10-18）
+
+* 機種: iPad Pro 11 インチ第 1 世代、iPadOS 26.7.1、Safari、Apple Pencil 第 2 世代。充電満タン、低電力モードオフ、フレームレートの制限オフ
+* ツール: 検証ページ（`src/features/input-lab/`）。Safari のタブとホーム画面の PWA（standalone）で測定
+* 接触して 10〜60 秒ほど描いた集計。ホバーは 0 件（第 1 世代では来ない）
+
+| 入力 | `desynchronized` | 表示 | サンプル（Hz） | イベント（Hz） | coalesced（平均） | predicted（平均） | フレーム間隔（ms） | 遅延の下限の目安（平均 / p95 / 最大、ms） |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Pencil | ON | Safari | 240.0 | 120.1 | 2.0 | 1.9 | 8.4（120 Hz） | 7.9 / 9 / 14 |
+| Pencil | OFF | Safari | 239.4 | 118.2 | 2.0 | 2.5 | 17.1（60 Hz） | 13.2 / 18 / 47 |
+| Pencil | ON | Safari | 240.1 | 118.8 | 2.1 | 1.2 | 17.2（60 Hz） | 12.5 / 17 / 54 |
+| Pencil | OFF | PWA | 240.4 | 120.5 | 2.1 | 1.8 | 17.0（60 Hz） | 12.1 / 17 / 26 |
+| 指 | OFF | Safari | 118.1 | 118.1 | 1.0 | 2.2 | 16.9（60 Hz） | 14.7 / 19 / 28 |
+
+* 遅延の下限の目安は、`pointermove` の `timeStamp` から、その線を描いた `requestAnimationFrame` の時刻までの差。**画面に表示されるまでは含まない**ため、実際の書き味の遅延より小さい。値は描画のフレームが 120 Hz か 60 Hz かでほぼ決まり、`desynchronized` の ON / OFF では差が出なかった（同じ 60 Hz なら 12.5 ms と 13.2 ms）。この測り方では `desynchronized` の効果は見えない
+* 最初の 1 回だけフレームが 120 Hz で、以降は設定に関係なく 60 Hz だった。原因は未特定（電源・低電力モード・フレームレートの制限は確認済みで、関係なし）。PWA にしても 120 Hz にはならなかった
+* Safari は `desynchronized: true` を受け付けた（`getContextAttributes()` が true を返す）
+* 1 条件ごとに 1 回の測定で、機種も 1 つ。新しい世代の iPad は確認していない
 
 ### 保存（iOS の PWA）
 
 * ホーム画面に追加した Web アプリは、7 日で消える制限の対象外とされている（[引用](https://pxlnv.com/linklog/safari-pwa/)）。
+* 実機の確認（2026-10-18、ホーム画面に追加した PWA、iPad Pro 11 インチ第 1 世代）: Service Worker の登録、IndexedDB への保存と読み出し（アプリを完全に終了して開き直したあとも値が残った）、`navigator.storage.persist()` の実行は、利用者の確認で問題なく動いた（`persist()` は `true` を返した。実行前の `persisted()` の値は記録していない）。数日後も値が残るかは未確認（未決事項）
+* 実機で、IndexedDB に書いてアプリを終了し、開き直すと、1 度だけ真っ白になった。その直前に、配信中のビルド（`dist/`）が別のビルドに差し替わっていた。ファイル名のハッシュが変わり、保存済みの古い `index.html` が、消えたファイルを読んだことが原因の可能性があるが、未検証で、別の原因（更新の挙動そのもの）も否定できない。IndexedDB の値は、白画面のときも残っていた可能性がある。その後、`dist-lab/` を配信し直してからは起動できた。更新の扱いは [architecture.md](architecture.md) の PWA を参照
 * ただし、ホーム画面アプリでもデータが消えた報告がある（[WebKit Bugzilla 237350](https://bugs.webkit.org/show_bug.cgi?id=237350)、[232302](https://bugs.webkit.org/show_bug.cgi?id=232302)）。2025 年以降の公式な確認は見つからなかった。
 
 ### 分析の指標
@@ -258,6 +299,6 @@ LLM は画像から細かい線の質を診断するのが不安定なため、�
 
 ### 描画の基盤
 
-* 低遅延描画のための `desynchronized` ヒントの資料は Chrome のもので、Safari での対応は未確認。遅延が 50 ms を超えると手と目の協調に影響するとされる（[Chrome](https://developer.chrome.com/blog/desynchronized)）。
+* 低遅延描画のための `desynchronized` ヒントの資料は Chrome のもの。Safari ではヒントが受け付けられる（実機で `getContextAttributes().desynchronized` が true）が、効果は測れていない。遅延が 50 ms を超えると手と目の協調に影響するとされる（[Chrome](https://developer.chrome.com/blog/desynchronized)）。
 * Apple のネイティブ（PencilKit）は、遅延を 20 ms から 9 ms に下げたとされる。
-* Canvas 2D は単純なブラシなら足りる可能性が高い。大きなキャンバスや多数のスタンプの合成が必要になった場合に、WebGL2 / WebGPU を検討する。Safari の WebGPU 対応時期は出典で食い違う。
+* Canvas 2D は単純なブラシなら足りる可能性が高い（実機の検証ページで、Canvas 2D の線の描画を 240 Hz のサンプルに追従して、フレーム落ちなく描けた）。大きなキャンバスや多数のスタンプの合成が必要になった場合に、WebGL2 / WebGPU を検討する。Safari の WebGPU 対応時期は出典で食い違う。

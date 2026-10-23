@@ -8,6 +8,7 @@
 
 - [architecture.md](architecture.md) — アーキテクチャ説明
 - [requirements.md](requirements.md) — 要件
+- [ipad-dev.md](ipad-dev.md) — iPad から開発中のアプリを開く手順（mkcert、入力検証ページ、PWA の確認）
 - `er.md` — DB ER 図（必要になったら作成）
 - `sequence/` — シーケンス図（必要になったら作成）
 
