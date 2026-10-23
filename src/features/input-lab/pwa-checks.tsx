@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DefinitionList } from "./definition-list";
+import { displayMode } from "./display-mode";
 import { readStamp, writeStamp } from "./idb-probe";
-
-export function displayMode(): string {
-  const standalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return standalone ? "standalone（ホーム画面から起動）" : "browser";
-}
 
 interface Checks {
   swRegistered: boolean;
@@ -88,14 +83,7 @@ export function PwaChecks() {
   return (
     <section className="space-y-2">
       <h2 className="font-semibold">PWA</h2>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-        {rows.map(([label, value]) => (
-          <div key={label} className="contents">
-            <dt className="text-muted-foreground">{label}</dt>
-            <dd className="font-mono">{value}</dd>
-          </div>
-        ))}
-      </dl>
+      <DefinitionList rows={rows} />
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" size="sm" onClick={write}>
           IndexedDB に書く
