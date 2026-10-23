@@ -59,7 +59,7 @@ flowchart LR
 * `.cert/dev.pem` と `.cert/dev-key.pem` があるときだけ、`vite.config.ts` が開発サーバーとプレビューを HTTPS にする。無ければ HTTP のまま（`.cert/` は `.gitignore`）
 * `bun run dev` は localhost のみ。iPad 用の `dev:ipad` / `preview:ipad` だけ `--host` で LAN に公開する。`allowedHosts` は `.local` を許可する
 * 手順は [ipad-dev.md](ipad-dev.md)
-* 入力検証ページ（`src/features/input-lab/`、`#input-lab`）は開発専用で、当分は残す（#9 時点の判断。#10 以降の入力の確認と、スローモーション撮影での遅延測定に使う）。開発サーバーと `build:lab`（`vite build --mode lab`）にだけ含め、通常のビルドからは取り除く（`import.meta.env.DEV || MODE === "lab"` の条件で `lazy import` する）
+* 入力検証ページ（画面は `src/pages/input-lab-page.tsx`、部品は `src/features/input-lab/`、`#input-lab`）は開発専用で、当分は残す（#9 時点の判断。#10 以降の入力の確認と、スローモーション撮影での遅延測定に使う）。開発サーバーと `build:lab`（`vite build --mode lab`）にだけ含め、通常のビルドからは取り除く（`import.meta.env.DEV || MODE === "lab"` の条件で `lazy import` する）
 
 ## PWA
 
@@ -77,8 +77,9 @@ flowchart LR
 ```
 public/         # 静的ファイル（アイコンなど）
 src/
+  pages/        # 画面。features の部品を組み合わせる（input-lab-page など）
   features/     # 機能単位（診断・基礎練習・イラスト練習・ツール学習・AI チャットなど）
-    input-lab/  # 入力検証ページ（開発専用。通常のビルドには含めない）
+    input-lab/  # 入力検証の部品（開発専用。通常のビルドには含めない）
   components/
     ui/         # shadcn/ui のコンポーネント（生成物）
   hooks/        # 汎用 hooks（use-hash など）

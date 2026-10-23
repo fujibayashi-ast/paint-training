@@ -7,7 +7,7 @@ import { useHash } from "@/hooks/use-hash";
 const InputLabPage =
   import.meta.env.DEV || import.meta.env.MODE === "lab"
     ? lazy(() =>
-        import("@/features/input-lab/input-lab-page").then((m) => ({
+        import("@/pages/input-lab-page").then((m) => ({
           default: m.InputLabPage,
         })),
       )

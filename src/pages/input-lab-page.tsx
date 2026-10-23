@@ -5,15 +5,18 @@ import {
   type LabState,
   type LatestInput,
   resetLabState,
-} from "./lab-state";
-import { type CanvasInfo, PointerCanvas } from "./pointer-canvas";
+} from "@/features/input-lab/lab-state";
+import {
+  type CanvasInfo,
+  PointerCanvas,
+} from "@/features/input-lab/pointer-canvas";
 import {
   intervals,
   type KindSummary,
   summarize,
   summarizeKind,
-} from "./pointer-stats";
-import { displayMode, PwaChecks } from "./pwa-checks";
+} from "@/features/input-lab/pointer-stats";
+import { displayMode, PwaChecks } from "@/features/input-lab/pwa-checks";
 
 /** 画面に反映する間隔（ms）。イベントごとに再描画しない */
 const REFRESH_MS = 500;
