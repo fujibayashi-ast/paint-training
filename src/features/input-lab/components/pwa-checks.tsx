@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { DefinitionList } from "@/components/definition-list";
 import { Button } from "@/components/ui/button";
-import { DefinitionList } from "./definition-list";
-import { displayMode } from "./display-mode";
-import { readStamp, writeStamp } from "./idb-probe";
+import { displayMode } from "@/features/input-lab/lib/display-mode";
+import { readStamp, writeStamp } from "@/features/input-lab/lib/idb-probe";
 
 interface Checks {
   swRegistered: boolean;

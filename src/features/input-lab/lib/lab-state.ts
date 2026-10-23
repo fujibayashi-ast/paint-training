@@ -1,5 +1,12 @@
 import { createKindLog, type KindLog } from "./pointer-stats";
 
+/** キャンバスの設定（desynchronized ヒントを指定した値と、実際に効いた値） */
+export interface CanvasInfo {
+  requestedDesynchronized: boolean;
+  /** getContextAttributes() で取れた値。取れない環境では undefined */
+  actualDesynchronized: boolean | undefined;
+}
+
 /** 最新のイベントの値。プロパティが無い環境では undefined */
 export interface LatestInput {
   pointerType: string;

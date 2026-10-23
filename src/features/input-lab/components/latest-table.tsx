@@ -1,6 +1,6 @@
-import { DefinitionList } from "./definition-list";
-import { fmt } from "./format";
-import type { LatestInput } from "./lab-state";
+import { DefinitionList } from "@/components/definition-list";
+import type { LatestInput } from "@/features/input-lab/lib/lab-state";
+import { fmt } from "@/lib/format";
 
 /** 最新のイベントの値 */
 export function LatestTable({ latest }: { latest: LatestInput | null }) {

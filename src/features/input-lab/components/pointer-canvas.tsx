@@ -1,11 +1,9 @@
 import { useEffect, useRef } from "react";
-import { getKindLog, type LabState } from "./lab-state";
-
-export interface CanvasInfo {
-  requestedDesynchronized: boolean;
-  /** getContextAttributes() で取れた値。取れない環境では undefined */
-  actualDesynchronized: boolean | undefined;
-}
+import {
+  type CanvasInfo,
+  getKindLog,
+  type LabState,
+} from "@/features/input-lab/lib/lab-state";
 
 interface Props {
   lab: LabState;

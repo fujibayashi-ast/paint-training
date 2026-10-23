@@ -1,8 +1,8 @@
-import { DefinitionList } from "./definition-list";
-import { fmt } from "./format";
-import type { CanvasInfo } from "./pointer-canvas";
-import type { Summary } from "./pointer-stats";
-import type { Features } from "./report";
+import { DefinitionList } from "@/components/definition-list";
+import type { CanvasInfo } from "@/features/input-lab/lib/lab-state";
+import type { Summary } from "@/features/input-lab/lib/pointer-stats";
+import type { Features } from "@/features/input-lab/lib/report";
+import { fmt } from "@/lib/format";
 
 interface Props {
   features: Features;

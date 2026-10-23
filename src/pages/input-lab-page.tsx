@@ -1,21 +1,22 @@
 import { useEffect, useReducer, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EnvironmentTable } from "@/features/input-lab/environment-table";
-import { KindTable } from "@/features/input-lab/kind-table";
-import { createLabState, resetLabState } from "@/features/input-lab/lab-state";
-import { LatestTable } from "@/features/input-lab/latest-table";
+import { EnvironmentTable } from "@/features/input-lab/components/environment-table";
+import { KindTable } from "@/features/input-lab/components/kind-table";
+import { LatestTable } from "@/features/input-lab/components/latest-table";
+import { PointerCanvas } from "@/features/input-lab/components/pointer-canvas";
+import { PwaChecks } from "@/features/input-lab/components/pwa-checks";
 import {
   type CanvasInfo,
-  PointerCanvas,
-} from "@/features/input-lab/pointer-canvas";
+  createLabState,
+  resetLabState,
+} from "@/features/input-lab/lib/lab-state";
 import {
   intervals,
   type KindSummary,
   summarize,
   summarizeKind,
-} from "@/features/input-lab/pointer-stats";
-import { PwaChecks } from "@/features/input-lab/pwa-checks";
-import { buildReport, detectFeatures } from "@/features/input-lab/report";
+} from "@/features/input-lab/lib/pointer-stats";
+import { buildReport, detectFeatures } from "@/features/input-lab/lib/report";
 
 /** 画面に反映する間隔（ms）。イベントごとに再描画しない */
 const REFRESH_MS = 500;

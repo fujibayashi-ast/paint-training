@@ -74,16 +74,21 @@ flowchart LR
 機能単位 + 共通の構成で、細かめに分ける。ファイル・ディレクトリ名は kebab-case。
 分割は行数ではなく責務で決め、汎用的なものと固有のものを分ける。
 
+* 機能（`features/<名前>/`）の中は、UI の部品を `components/`、UI でない処理を `lib/` に分ける。`lib/` は `components/` に依存しない
+* 複数の機能で使う汎用のものは、`src/components/`・`src/lib/`・`src/hooks/` に置く
+
 ```
 public/         # 静的ファイル（アイコンなど）
 src/
   pages/        # 画面。features の部品を組み合わせる（input-lab-page など）
   features/     # 機能単位（診断・基礎練習・イラスト練習・ツール学習・AI チャットなど）
-    input-lab/  # 入力検証の部品（開発専用。通常のビルドには含めない）
-  components/
+    input-lab/  # 入力検証（開発専用。通常のビルドには含めない）
+      components/  # その機能の UI の部品
+      lib/         # その機能の UI でない処理（状態・集計・IndexedDB など）
+  components/   # 汎用の UI の部品（definition-list など）
     ui/         # shadcn/ui のコンポーネント（生成物）
   hooks/        # 汎用 hooks（use-hash など）
-  lib/          # 共通処理（cn、今後はストローク、指標の計算、Command など）
+  lib/          # 共通処理（cn、format、今後はストローク、指標の計算、Command など）
   app.tsx       # トップ画面
   main.tsx      # エントリ
   index.css     # Tailwind とテーマ変数

@@ -1,5 +1,5 @@
-import { fmt } from "./format";
-import type { KindSummary } from "./pointer-stats";
+import type { KindSummary } from "@/features/input-lab/lib/pointer-stats";
+import { fmt } from "@/lib/format";
 
 const ROWS: [string, (s: KindSummary) => string][] = [
   ["イベントの頻度（Hz）", (s) => fmt(s.eventHz)],

@@ -1,6 +1,5 @@
 import { displayMode } from "./display-mode";
-import type { LabState } from "./lab-state";
-import type { CanvasInfo } from "./pointer-canvas";
+import type { CanvasInfo, LabState } from "./lab-state";
 import {
   intervals,
   type KindSummary,
